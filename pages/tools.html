@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="contact:email" content="mwaririjoseph81@gmail.com">
+  <meta name="contact:phone" content="0111346332">
+  <title>incognito | Tools Marketplace</title>
+  <link rel="stylesheet" href="../styles/main.css">
+  <style>
+    .tools-app{ max-width:1000px; margin:100px auto; padding:1rem }
+    .tools-grid{ display:grid; gap:1rem; grid-template-columns: repeat(auto-fit,minmax(260px,1fr)); }
+    .tool-card{ padding:1rem; border-radius:10px; box-shadow: var(--shadow-soft); background:var(--card-bg); }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="logo"><h1>incognito</h1></div>
+    <div class="menu-toggle" id="menu-toggle">&#9776;</div>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="2.guides.html">Guides</a></li>
+      <li><a href="videos.html">Videos</a></li>
+      <li><a href="services.html">Services</a></li>
+      <li><a href="predictions.html">Predictions</a></li>
+  <li><a href="cybersecurity.html">Ethical Hacking and Cyber Security</a></li>
+  <li><a href="tools.html" class="active">Tools and Softwares</a></li>
+      <li><a href="contact.html">Contact</a></li>
+    </ul>
+    <div class="nav-contact">
+      <a href="tel:0111346332">0111346332</a>
+    </div>
+  </nav>
+
+  <main class="tools-app">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <h1>Tools Marketplace</h1>
+    </div>
+
+    <div id="admin-panel" style="display:none; margin-top:1rem" class="card">
+      <h3>Admin - Add Tool</h3>
+      <form id="add-tool-form" style="display:grid;gap:8px">
+        <input id="tool-name" placeholder="Tool name" required />
+        <input id="tool-desc" placeholder="Tool description" required />
+        <button type="submit">Add Tool</button>
+      </form>
+    </div>
+
+    <section style="margin-top:1rem">
+      <h2>Available Tools</h2>
+      <div id="tools-grid" class="tools-grid"></div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+      <p>&copy; 2025 incognito. All rights reserved.</p>
+      <p>Contact: <a href="mailto:mwaririjoseph81@gmail.com">mwaririjoseph81@gmail.com</a> | <a href="tel:0111346332">0111346332</a></p>
+    </div>
+  </footer>
+
+  <script src="../js/auth.js"></script>
+  <script src="../js/main.js"></script>
+  <script src="../js/edit-content.js"></script>
+  <script src="../js/helper.js"></script>
+  
+</body>
+  <script>
+    // simple tools manager
+    const TOOLS_KEY = 'tools_v1';
+    function loadTools(){ return JSON.parse(localStorage.getItem(TOOLS_KEY)||'[]'); }
+    function saveTools(t){ localStorage.setItem(TOOLS_KEY, JSON.stringify(t)); }
+
+    function render(){
+      const grid = document.getElementById('tools-grid'); grid.innerHTML='';
+      const tools = loadTools();
+      if(tools.length===0) grid.innerHTML = '<div>No tools available yet.</div>';
+      tools.forEach((t,i)=>{
+        const d = document.createElement('div'); d.className='tool-card card';
+        d.innerHTML = `<h3>${t.name}</h3><p>${t.desc}</p><div>${t.purchased?'<span>Purchased</span>':'<button class="buy">Buy</button>'}</div>`;
+        const btn = d.querySelector('.buy');
+        if(btn) btn.addEventListener('click', ()=>{
+          // require login before allowing purchases
+          if(!(window.isLoggedIn && window.isLoggedIn())){
+            // remember where to return after login
+            try { localStorage.setItem('post_login_redirect', window.location.href); } catch(e){}
+            alert('You must be signed in to purchase. Redirecting to login.');
+            window.location.href = 'login.html';
+            return;
+          }
+
+          const method = prompt('Pay via mpesa or paypal');
+          if(!method) return;
+          window.open('https://www.paypal.com','_blank');
+          t.purchased = true; tools[i] = t; saveTools(tools); render(); alert('Payment simulated');
+        });
+        grid.appendChild(d);
+      });
+    }
+
+    // Admin panel visibility is controlled by server-side auth (or login page). If admin is signed in, the panel will show.
+
+    document.getElementById('add-tool-form').addEventListener('submit', (e)=>{
+      e.preventDefault();
+      const name = document.getElementById('tool-name').value.trim();
+      const desc = document.getElementById('tool-desc').value.trim();
+      if(!name||!desc) return alert('Please fill fields');
+      const tools = loadTools(); tools.unshift({name,desc,purchased:false}); saveTools(tools); render(); document.getElementById('tool-name').value=''; document.getElementById('tool-desc').value='';
+    });
+
+    // init
+    if(window.isAdmin && window.isAdmin()){
+      document.getElementById('admin-panel').style.display='block';
+    }
+    render();
+  </script>
+<script>
+
+
+ 

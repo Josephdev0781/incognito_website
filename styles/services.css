@@ -1,0 +1,141 @@
+/* ===== Services Page Styles ===== */
+.services-hero {
+  background: var(--gradient-primary);
+  padding: 8rem 2rem 4rem;
+  text-align: center;
+  color: var(--text-light);
+  position: relative;
+  overflow: hidden;
+}
+
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 3rem auto;
+  padding: 2rem;
+}
+
+.service-card {
+  background: var(--card-bg);
+  border-radius: 15px;
+  padding: 2rem;
+  text-align: center;
+  box-shadow: var(--shadow-soft);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.service-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--gradient-primary);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 0;
+}
+
+.service-card:hover {
+  transform: translateY(-10px);
+  box-shadow: var(--shadow-strong);
+}
+
+.service-card:hover::before {
+  opacity: 0.1;
+}
+
+.service-icon {
+  font-size: 3em;
+  margin-bottom: 1rem;
+  position: relative;
+  z-index: 1;
+}
+
+.service-card h2 {
+  color: var(--text-dark);
+  margin: 1rem 0;
+  font-size: 1.5em;
+  position: relative;
+  z-index: 1;
+}
+
+.service-card p {
+  color: var(--text-dark);
+  margin-bottom: 1.5rem;
+  position: relative;
+  z-index: 1;
+}
+
+.service-btn {
+  display: inline-block;
+  padding: 0.8rem 1.5rem;
+  background: var(--accent-color);
+  color: var(--text-light);
+  text-decoration: none;
+  border-radius: 25px;
+  transition: all 0.3s ease;
+  position: relative;
+  z-index: 1;
+}
+
+.service-btn:hover {
+  background: var(--primary-color);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-soft);
+}
+
+/* ===== Service Features ===== */
+.features-section {
+  padding: 4rem 2rem;
+  background: var(--background-light);
+}
+
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.feature-item {
+  text-align: center;
+  padding: 2rem;
+}
+
+.feature-icon {
+  font-size: 2.5em;
+  color: var(--accent-color);
+  margin-bottom: 1rem;
+}
+
+/* ===== Responsive Design ===== */
+@media (max-width: 768px) {
+  .services-hero {
+    padding: 6rem 1rem 3rem;
+  }
+
+  .services-grid {
+    grid-template-columns: 1fr;
+    padding: 1rem;
+  }
+
+  .service-card {
+    padding: 1.5rem;
+  }
+
+  .feature-grid {
+    grid-template-columns: 1fr;
+  }
+
+.dark .service-card .service-btn {
+  color: #fff !important;             /* visible text */
+  background-color: #c923f7 !important; /* pick a visible dark-mode background */
+}
+}

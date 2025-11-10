@@ -1,0 +1,91 @@
+/* ===== Guides Page Styles ===== */
+.guide-section {
+  padding: 8rem 2rem 4rem;
+  /* use theme-aware surface token; fallback to the original light color */
+  background: var(--surface-1, #fafafa);
+}
+
+.guide-section h1 {
+  font-size: 2.5em;
+  /* theme-aware heading color with a light-mode fallback */
+  color: var(--text-main, var(--text-dark));
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.guide-section p {
+  color: var(--text-muted, #666);
+  max-width: 700px;
+  margin: 0 auto 3rem;
+  text-align: center;
+}
+
+.guide-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.guide-card {
+  /* let the global card background token control appearance */
+  background: var(--card-bg, white);
+  border-radius: 15px;
+  padding: 2rem;
+  box-shadow: var(--shadow-soft);
+  transition: all 0.3s ease;
+  transform-style: preserve-3d;
+  perspective: 1000px;
+}
+
+.guide-card:hover {
+  transform: translateY(-10px) rotateX(5deg);
+  box-shadow: var(--shadow-strong);
+}
+
+.guide-card h2 {
+  color: var(--text-main, var(--text-dark));
+  margin-bottom: 1rem;
+  font-size: 1.5em;
+}
+
+.guide-card p {
+  color: var(--text-muted, #666);
+  margin-bottom: 1.5rem;
+  text-align: left;
+}
+
+.btn {
+  display: inline-block;
+  padding: 0.8rem 1.5rem;
+  background: var(--accent-color);
+  color: white;
+  text-decoration: none;
+  border-radius: 25px;
+  transition: all 0.3s ease;
+  transform: translateZ(20px);
+}
+
+.btn:hover {
+  background: var(--primary-color);
+  transform: translateZ(30px);
+  box-shadow: var(--shadow-soft);
+}
+
+@media (max-width: 768px) {
+  .guide-section {
+    padding: 6rem 1rem 3rem;
+  }
+  
+  .guide-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.guide-card {
+  border: 1px solid rgba(0,0,0,0.05); /* adds slight structure under light themes */
+}
+body.dark-theme .guide-card {
+  border-color: rgba(255,255,255,0.05);
+}

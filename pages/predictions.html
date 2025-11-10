@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="contact:email" content="mwaririjoseph81@gmail.com">
+  <meta name="contact:phone" content="0111346332">
+  <title>incognito | Predictions</title>
+  <link rel="stylesheet" href="../styles/main.css">
+  <style>
+    /* Minimal page styles; main.css handles global look */
+    .pred-app { max-width: 1000px; margin: 100px auto; padding: 1rem; }
+    .pred-list { display:grid; gap:1rem; }
+    .pred-item { 
+      padding:1.5rem; 
+      border-radius:12px; 
+      box-shadow: var(--shadow-soft); 
+      background: var(--card-bg, white);
+      border: 1px solid rgba(0,0,0,0.06);
+    }
+    .premium { 
+      border-left:4px solid #e67e22; 
+      background: linear-gradient(to right, rgba(230,126,34,0.05), transparent);
+    }
+    .admin-panel { 
+      margin-bottom:2rem; 
+      background: var(--card-bg, white);
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: var(--shadow-soft);
+      border: 1px solid var(--accent-color, #3498db);
+      position: relative;
+      overflow: hidden;
+    }
+    .admin-panel::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: var(--accent-color, #3498db);
+    }
+    .pred-item button, .admin-panel button {
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      background: var(--accent-color, #3498db);
+      color: white;
+      border: none;
+      cursor: pointer;
+      margin-right: 0.5rem;
+    }
+    .pred-item button:hover, .admin-panel button:hover {
+      background: var(--primary-color, #2c3e50);
+    }
+    .admin-panel input, .admin-panel textarea {
+      width: 100%;
+      padding: 0.5rem;
+      margin-bottom: 0.5rem;
+      border: 1px solid rgba(0,0,0,0.1);
+      border-radius: 6px;
+      background: var(--card-bg, white);
+      color: inherit;
+    }
+    .admin-panel label {
+      color: var(--text-dark, inherit);
+    }
+    body.dark-theme .pred-item,
+    body.dark-theme .admin-panel {
+      background: var(--card-bg, #1a1a1a);
+      border-color: rgba(255,255,255,0.05);
+    }
+    body.dark-theme .admin-panel input,
+    body.dark-theme .admin-panel textarea {
+      background: rgba(0,0,0,0.2);
+      border-color: rgba(255,255,255,0.05);
+      color: var(--text-light, white);
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="logo"><h1>incognito</h1></div>
+    <div class="menu-toggle" id="menu-toggle">&#9776;</div>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="2.guides.html">Guides</a></li>
+      <li><a href="videos.html">Videos</a></li>
+      <li><a href="services.html">Services</a></li>
+      <li><a href="predictions.html" class="active">Predictions</a></li>
+  <li><a href="cybersecurity.html">Ethical Hacking and Cyber Security</a></li>
+  <li><a href="tools.html">Tools and Softwares</a></li>
+  <li><a href="contact.html">Contact</a></li>
+    </ul>
+    <div class="nav-contact">
+      <a href="tel:0111346332">0111346332</a>
+    </div>
+  </nav>
+
+  <main id="root" class="pred-app"></main>
+
+  <!-- React + Babel CDN for in-browser JSX (suitable for prototyping). For production, build with a bundler. -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+  <script src="../js/auth.js"></script>
+
+  <!-- Predictions app (JSX) -->
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+
+    function App(){
+      const [predictions, setPredictions] = useState([]);
+      const [isAdmin, setIsAdmin] = useState(window.isAdmin && window.isAdmin());
+      const [isLoggedIn] = useState(window.isLoggedIn && window.isLoggedIn());
+      
+      // Initialize with default predictions if none exist
+      useEffect(() => {
+        const stored = JSON.parse(localStorage.getItem('predictions_v1') || '[]');
+        if (stored.length === 0) {
+          // Add some default predictions
+          const defaults = [
+            {
+              league: "Premier League",
+              match: "Arsenal vs Manchester City",
+              tip: "Over 2.5 Goals",
+              details: "Based on recent form and head-to-head statistics, expecting a high-scoring match",
+              premium: false,
+              purchased: false
+            },
+            {
+              league: "La Liga",
+              match: "Barcelona vs Real Madrid",
+              tip: "Both Teams to Score",
+              details: "El Clasico historical data suggests high probability of both teams scoring",
+              premium: true,
+              purchased: false
+            },
+            {
+              league: "Bundesliga",
+              match: "Bayern Munich vs Borussia Dortmund",
+              tip: "First Half Goals Over 1.5",
+              details: "Detailed analysis of first half performance and scoring patterns",
+              premium: true,
+              purchased: false
+            }
+          ];
+          setPredictions(defaults);
+          localStorage.setItem('predictions_v1', JSON.stringify(defaults));
+        } else {
+          setPredictions(stored);
+        }
+      }, []);
+
+      useEffect(()=>{ localStorage.setItem('predictions_v1', JSON.stringify(predictions)); },[predictions]);
+
+      function addPrediction(p){ setPredictions([p,...predictions]); }
+      function removePrediction(i){ const copy=[...predictions]; copy.splice(i,1); setPredictions(copy); }
+
+      function toggleAdmin(){
+        if(window.adminLogin && window.adminLogin()){
+          setIsAdmin(true);
+          alert('Admin mode enabled');
+        }
+      }
+
+      function purchasePremium(item){
+        // must be logged in to purchase
+        if(!(window.isLoggedIn && window.isLoggedIn())){
+          try { localStorage.setItem('post_login_redirect', window.location.href); } catch(e){}
+          alert('Please sign in to make a purchase. Redirecting to login.');
+          window.location.href = 'login.html';
+          return;
+        }
+
+        // placeholder flow: ask method
+        const method = prompt('Enter payment method: mpesa or paypal');
+        if(!method) return;
+        if(method.toLowerCase()==='paypal'){
+          // open PayPal checkout placeholder
+          window.open('https://www.paypal.com/checkoutnow','_blank');
+          alert('Opened PayPal checkout (placeholder)');
+          // mark as purchased locally
+          item.purchased = true; setPredictions([...predictions]);
+        } else if(method.toLowerCase()==='mpesa'){
+          const phone = prompt('Enter phone number for M-Pesa');
+          if(!phone) return alert('Phone required');
+          // simulate STK push
+          setTimeout(()=>{ item.purchased=true; setPredictions([...predictions]); alert('M-Pesa simulated: purchase complete'); },1500);
+        } else alert('Unknown method');
+      }
+
+      // buyTool removed: predictions no longer links to the tools marketplace
+
+      return (
+        <div>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'1rem'}}>
+            <h1>Predictions</h1>
+            <div>
+              {!isAdmin && window.isAdmin && window.isAdmin() && (
+                <button onClick={toggleAdmin} style={{background:'var(--accent-color)',color:'white',padding:'0.5rem 1rem',borderRadius:'6px',border:'none',cursor:'pointer'}}>
+                  Admin Mode
+                </button>
+              )}
+              {isAdmin && (
+                <button onClick={()=>setIsAdmin(false)} style={{background:'var(--primary-color)',color:'white',padding:'0.5rem 1rem',borderRadius:'6px',border:'none',cursor:'pointer'}}>
+                  Exit Admin Mode
+                </button>
+              )}
+            </div>
+          </div>
+
+          {isAdmin && <AdminPanel onAdd={addPrediction} />}
+
+          <section>
+            <h2>Upcoming Predictions</h2>
+            <div className="pred-list">
+              {predictions.length===0 && <div>No predictions yet.</div>}
+              {predictions.map((p,idx)=> (
+                <div key={idx} className={"pred-item "+(p.premium? 'premium':'')}>
+                  <strong>{p.league} — {p.match}</strong>
+                  <div>{p.tip}</div>
+                  <div style={{marginTop:8}}>
+                    {p.premium && !p.purchased && <button onClick={()=>purchasePremium(p)}>Buy to view full details</button>}
+                    {(!p.premium || p.purchased) && <button onClick={()=>alert('Full details:\n'+ (p.details||'(no details)'))}>View Details</button>}
+                    {isAdmin && <button onClick={()=>{ if(confirm('Delete?')) removePrediction(idx); }}>Delete</button>}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/*Premium Tools section removed — tools marketplace is separate */}
+
+        </div>
+      );
+    }
+
+    function AdminPanel({onAdd,onAddTool}){
+      const [league, setLeague] = React.useState('');
+      const [match, setMatch] = React.useState('');
+      const [tip, setTip] = React.useState('');
+      const [details, setDetails] = React.useState('');
+      const [premium, setPremium] = React.useState(false);
+
+      function submit(e){ e.preventDefault(); const p={league,match,tip,details,premium,purchased:false}; onAdd(p); setLeague('');setMatch('');setTip('');setDetails('');setPremium(false);} 
+
+      const [toolName, setToolName] = React.useState('');
+      const [toolDesc, setToolDesc] = React.useState('');
+      function addTool(e){ e.preventDefault(); onAddTool({name:toolName,desc:toolDesc,purchased:false}); setToolName(''); setToolDesc(''); }
+
+      return (
+        <div className="admin-panel">
+          <h3 style={{marginBottom:'1rem',color:'var(--accent-color)'}}>Add New Prediction</h3>
+          <form onSubmit={submit} style={{display:'grid',gap:'1rem'}}>
+            <div>
+              <label style={{display:'block',marginBottom:'0.5rem',color:'var(--text-muted)'}}>League</label>
+              <input value={league} onChange={e=>setLeague(e.target.value)} placeholder="e.g. Premier League, La Liga" required />
+            </div>
+            <div>
+              <label style={{display:'block',marginBottom:'0.5rem',color:'var(--text-muted)'}}>Match</label>
+              <input value={match} onChange={e=>setMatch(e.target.value)} placeholder="e.g. Team A vs Team B" required />
+            </div>
+            <div>
+              <label style={{display:'block',marginBottom:'0.5rem',color:'var(--text-muted)'}}>Tip</label>
+              <input value={tip} onChange={e=>setTip(e.target.value)} placeholder="e.g. Over 2.5 Goals, Both Teams to Score" required />
+            </div>
+            <div>
+              <label style={{display:'block',marginBottom:'0.5rem',color:'var(--text-muted)'}}>Details</label>
+              <textarea 
+                value={details} 
+                onChange={e=>setDetails(e.target.value)} 
+                placeholder="Detailed analysis and justification (visible after purchase)"
+                style={{minHeight:'100px'}}
+              ></textarea>
+            </div>
+            <label style={{display:'flex',alignItems:'center',gap:'0.5rem',color:'var(--text-muted)'}}>
+              <input 
+                type="checkbox" 
+                checked={premium} 
+                onChange={e=>setPremium(e.target.checked)}
+                style={{width:'auto'}}
+              />
+              Premium Prediction (requires purchase)
+            </label>
+            <button type="submit" style={{marginTop:'0.5rem'}}>Add Prediction</button>
+          </form>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+
+  <script src="../js/main.js"></script>
+  <script src="../js/admin.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/edit-content.js"></script>
+  <script src="../js/helper.js"></script>
+  <footer>
+    <div class="footer-inner">
+      <p>&copy; 2025 incognito. All rights reserved.</p>
+      <p>Contact: <a href="mailto:mwaririjoseph81@gmail.com">mwaririjoseph81@gmail.com</a> | <a href="tel:0111346332">0111346332</a></p>
+    </div>
+  </footer>
+</body>
+</html> predictions.html
