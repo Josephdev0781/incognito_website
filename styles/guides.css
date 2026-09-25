@@ -87,5 +87,6 @@
   border: 1px solid rgba(0,0,0,0.05); /* adds slight structure under light themes */
 }
 body.dark-theme .guide-card {
-  border-color: rgba(255,255,255,0.05);
+  background: var(--card-bg);
+  border-color: var(--border);
 }

@@ -134,7 +134,7 @@
     grid-template-columns: 1fr;
   }
 
-.dark .service-card .service-btn {
+body.dark-theme .service-card .service-btn {
   color: #fff !important;             /* visible text */
   background-color: #c923f7 !important; /* pick a visible dark-mode background */
 }

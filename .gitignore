@@ -1,0 +1,19 @@
+node_modules/
+.env
+.env.*
+!.env.example
+
+
+# VS Code
+.vscode/
+
+# Logs
+*.log
+
+# Build/output
+dist/
+build/
+
+# OS files
+.DS_Store
+Thumbs.db

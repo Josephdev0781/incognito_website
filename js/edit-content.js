@@ -11,18 +11,26 @@
     return typeof window.isAdmin === 'function' && window.isAdmin();
   }
 
+  function cleanEditableHtml(html) {
+    const template = document.createElement('template');
+    template.innerHTML = html;
+    template.content.querySelectorAll('.edit-btn').forEach(button => button.remove());
+    return template.innerHTML;
+  }
+
   function loadSaved(element){
     const key = element.dataset.editable;
     if(!key) return;
     const saved = localStorage.getItem(storageKey(key));
-    if(saved !== null){ element.innerHTML = saved; }
+    if(saved !== null){ element.innerHTML = cleanEditableHtml(saved); }
   }
 
   function saveContent(element, html){
     const key = element.dataset.editable;
     if(!key) return;
-    localStorage.setItem(storageKey(key), html);
-    element.innerHTML = html;
+    const cleanedHtml = cleanEditableHtml(html);
+    localStorage.setItem(storageKey(key), cleanedHtml);
+    element.innerHTML = cleanedHtml;
   }
 
   function createModal(initialHtml, onSave){
@@ -108,7 +116,7 @@
         btn.addEventListener('click', (e) => {
           e.stopPropagation();
           if (isAdminSafe()) {
-            createModal(el.innerHTML, newHtml => {
+            createModal(cleanEditableHtml(el.innerHTML), newHtml => {
               saveContent(el, newHtml);
             });
           }
@@ -121,16 +129,23 @@
   function startAdminWatcher(){
     setInterval(() => {
       const currentAdmin = isAdminSafe();
-      if (currentAdmin) {
+      if (currentAdmin && !lastAdminState) {
         document.querySelectorAll('[data-editable]').forEach(el => {
           delete el.dataset.editInitialized;
         });
         init();
-      } else {
+      } else if (!currentAdmin && lastAdminState) {
         removeAllEditButtons();
       }
       lastAdminState = currentAdmin;
     }, 1000);
+    window.addEventListener('auth-ready', () => {
+      document.querySelectorAll('[data-editable]').forEach(el => {
+        delete el.dataset.editInitialized;
+      });
+      init();
+      lastAdminState = isAdminSafe();
+    });
   }
 
   function addEditableContent(name, html, container = document.body) {
@@ -169,7 +184,7 @@
     removeAllEditButtons();
     window.isAdmin = () => false;
     lastAdminState = false;
-    console.log('🧹 Admin logged out — all edit buttons removed');
+    console.log('Admin session ended; edit controls removed');
   };
 
   // Example dynamic Add Content button hookup

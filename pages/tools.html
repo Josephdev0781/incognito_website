@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="contact:email" content="mwaririjoseph81@gmail.com">
-  <meta name="contact:phone" content="0111346332">
+  <meta name="contact:phone" content="+254111346332">
   <title>incognito | Tools Marketplace</title>
   <link rel="stylesheet" href="../styles/main.css">
   <style>
@@ -28,7 +28,7 @@
       <li><a href="contact.html">Contact</a></li>
     </ul>
     <div class="nav-contact">
-      <a href="tel:0111346332">0111346332</a>
+      <a href="tel:+254111346332">+254111346332</a>
     </div>
   </nav>
 
@@ -55,7 +55,7 @@
   <footer>
     <div class="footer-inner">
       <p>&copy; 2025 incognito. All rights reserved.</p>
-      <p>Contact: <a href="mailto:mwaririjoseph81@gmail.com">mwaririjoseph81@gmail.com</a> | <a href="tel:0111346332">0111346332</a></p>
+      <p>Contact: <a href="mailto:mwaririjoseph81@gmail.com">mwaririjoseph81@gmail.com</a> | <a href="tel:+254111346332">+254111346332</a></p>
     </div>
   </footer>
 
@@ -79,39 +79,66 @@
         const d = document.createElement('div'); d.className='tool-card card';
         d.innerHTML = `<h3>${t.name}</h3><p>${t.desc}</p><div>${t.purchased?'<span>Purchased</span>':'<button class="buy">Buy</button>'}</div>`;
         const btn = d.querySelector('.buy');
-        if(btn) btn.addEventListener('click', ()=>{
-          // require login before allowing purchases
-          if(!(window.isLoggedIn && window.isLoggedIn())){
-            // remember where to return after login
+        if(btn) btn.addEventListener('click', async ()=>{
+          if(!(window.getCurrentUser && await window.getCurrentUser())){
             try { localStorage.setItem('post_login_redirect', window.location.href); } catch(e){}
             alert('You must be signed in to purchase. Redirecting to login.');
             window.location.href = 'login.html';
             return;
           }
 
-          const method = prompt('Pay via mpesa or paypal');
-          if(!method) return;
-          window.open('https://www.paypal.com','_blank');
-          t.purchased = true; tools[i] = t; saveTools(tools); render(); alert('Payment simulated');
+          const amount = 1000;
+          try {
+            const { order } = await window.apiRequest('/api/orders', {
+              method: 'POST',
+              body: JSON.stringify({ amount, currency: 'usd', metadata: { type: 'tool', name: t.name } })
+            });
+            const choice = prompt('Enter payment method: stripe or mpesa');
+            if (choice && choice.toLowerCase() === 'stripe') {
+              const checkout = await window.apiRequest('/api/payments/stripe/checkout', {
+                method: 'POST',
+                body: JSON.stringify({ orderId: order.id })
+              });
+              window.location.href = checkout.url;
+            } else if (choice && choice.toLowerCase() === 'mpesa') {
+              const phone = prompt('Enter M-Pesa number in format 2547XXXXXXXX');
+              await window.apiRequest('/api/payments/mpesa/stk-push', {
+                method: 'POST',
+                body: JSON.stringify({ orderId: order.id, phone })
+              });
+              alert('Payment request sent to your phone. Access will be enabled after confirmation.');
+            }
+          } catch (error) {
+            alert(error.message);
+          }
         });
         grid.appendChild(d);
       });
     }
 
-    // Admin panel visibility is controlled by server-side auth (or login page). If admin is signed in, the panel will show.
-
-    document.getElementById('add-tool-form').addEventListener('submit', (e)=>{
+    document.getElementById('add-tool-form').addEventListener('submit', async (e)=>{
       e.preventDefault();
+      const user = window.getCurrentUser ? await window.getCurrentUser() : null;
+      if (!user || user.role !== 'admin') {
+        alert('Administrator access is required to add tools.');
+        return;
+      }
+
       const name = document.getElementById('tool-name').value.trim();
       const desc = document.getElementById('tool-desc').value.trim();
       if(!name||!desc) return alert('Please fill fields');
       const tools = loadTools(); tools.unshift({name,desc,purchased:false}); saveTools(tools); render(); document.getElementById('tool-name').value=''; document.getElementById('tool-desc').value='';
     });
 
-    // init
-    if(window.isAdmin && window.isAdmin()){
-      document.getElementById('admin-panel').style.display='block';
+    function updateAdminPanel(user) {
+      document.getElementById('admin-panel').style.display =
+        user && user.role === 'admin' ? 'block' : 'none';
     }
+
+    updateAdminPanel(null);
+    window.addEventListener('auth-ready', (event) => {
+      updateAdminPanel(event.detail);
+    });
     render();
   </script>
 <script>

@@ -1,0 +1,25 @@
+const express = require('express');
+const path = require('path');
+const helmet = require('helmet');
+const cookieParser = require('cookie-parser');
+const rateLimit = require('express-rate-limit');
+const { ZodError } = require('zod');
+const auth = require('./routes/auth');
+const orders = require('./routes/orders');
+const payments = require('./routes/payments');
+const app = express();
+app.disable('x-powered-by');
+app.use(helmet());
+app.use(cookieParser());
+app.use('/pages', express.static(path.join(__dirname, '..', 'pages')));
+app.use('/styles', express.static(path.join(__dirname, '..', 'styles')));
+app.use('/js', express.static(path.join(__dirname, '..', 'js')));
+app.get('/', (req, res) => res.redirect('/pages/index.html'));
+app.use(rateLimit({ windowMs: 15 * 60 * 1000, limit: 300, standardHeaders: 'draft-7', legacyHeaders: false }));
+// Mount before the JSON parser so Stripe receives the exact raw request body.
+app.use('/api/payments', payments);
+app.use(express.json({ limit: '100kb' }));
+app.use('/api/auth', rateLimit({ windowMs: 15 * 60 * 1000, limit: 30, standardHeaders: 'draft-7', legacyHeaders: false }), auth);
+app.use('/api/orders', orders);
+app.use((error, req, res, next) => { if (error instanceof ZodError) return res.status(400).json({ error: 'Invalid request', details: error.issues }); console.error(error); res.status(500).json({ error: 'Internal server error' }); });
+module.exports = app;

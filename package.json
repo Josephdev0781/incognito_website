@@ -1,0 +1,26 @@
+{
+  "name": "static-site-backend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Production backend for the static site",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node --watch server/index.js",
+    "db:migrate": "node server/db/migrate.js",
+    "check": "node --check server/index.js && node --check server/app.js && node --check server/config.js"
+  },
+  "engines": { "node": ">=20" },
+  "dependencies": {
+    "argon2": "^0.41.1",
+    "axios": "^1.8.4",
+    "cookie-parser": "^1.4.7",
+    "dotenv": "^16.4.7",
+    "express": "^5.1.0",
+    "express-rate-limit": "^7.5.0",
+    "helmet": "^8.1.0",
+    "pg": "^8.13.3",
+    "stripe": "^18.0.0",
+    "zod": "^3.24.2"
+  }
+}
